@@ -140,6 +140,27 @@ public final class Main {
                 if (action.getObjectType().equals("users")) {
                     arrayResult.add(Query.numberOfRatings(action, users));
                 }
+            } else if (action.getActionType().equals("recommendation")) {
+                if (action.getType().equals("standard")) {
+                    arrayResult.add(Recommendation.standardRecommendation(input,
+                            action, movies, serials));
+                }
+                if (action.getType().equals("best_unseen")) {
+                    arrayResult.add(Recommendation.bestUnseenRecommendation(input,
+                            action, movies, serials));
+                }
+                if (action.getType().equals("search")) {
+                    arrayResult.add(Recommendation.searchRecommendation(input,
+                            action, movies, serials));
+                }
+                if (action.getType().equals("favorite")) {
+                    arrayResult.add(Recommendation.favoriteRecommendation(input,
+                            action, movies, serials));
+                }
+                if (action.getType().equals("popular")) {
+                    arrayResult.add(Recommendation.popularRecommendation(input,
+                            action, movies, serials));
+                }
             }
 
         }
