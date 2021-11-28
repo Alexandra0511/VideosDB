@@ -107,6 +107,40 @@ public final class Main {
                     arrayResult.add(Commands.rating(movies, action, serials, users));
                 }
             }
+            if (action.getActionType().equals("query")) {
+                if (action.getObjectType().equals("actors")) {
+                    if (action.getCriteria().equals("average")) {
+                        arrayResult.add(Query.average(action.getNumber(),
+                                action, movies, serials, input));
+                    }
+                    if (action.getCriteria().equals("awards")) {
+                        List<ActorsAwards> awards = Utils.awardsList(action.getFilters().get(3));
+                        arrayResult.add(Query.awards(action, input, awards));
+                    }
+                    if (action.getCriteria().equals("filter_description")) {
+                        List<String> words = action.getFilters().get(2);
+                        arrayResult.add(Query.filterDescription(action, input, words));
+                    }
+                }
+                if (action.getObjectType().equals("movies") ||
+                        action.getObjectType().equals("shows")) {
+                    if (action.getCriteria().equals("ratings")) {
+                        arrayResult.add(Query.rating(action, movies, serials));
+                    }
+                    if (action.getCriteria().equals("favorite")) {
+                        arrayResult.add(Query.favorite(input, action, movies, serials));
+                    }
+                    if (action.getCriteria().equals("longest")) {
+                        arrayResult.add(Query.longest(action, movies, serials));
+                    }
+                    if (action.getCriteria().equals("most_viewed")) {
+                        arrayResult.add(Query.mostViewed(input, action, movies, serials));
+                    }
+                }
+                if (action.getObjectType().equals("users")) {
+                    arrayResult.add(Query.numberOfRatings(action, users));
+                }
+            }
 
         }
         fileWriter.closeJSON(arrayResult);
