@@ -1,18 +1,26 @@
 package main;
 
+import actions.Commands;
+import actions.Query;
+import actions.Recommendation;
+import actor.ActorsAwards;
 import checker.Checkstyle;
 import checker.Checker;
 import common.Constants;
-import fileio.Input;
-import fileio.InputLoader;
-import fileio.Writer;
+import entertainment.Movie;
+import entertainment.Serial;
+import entertainment.User;
+import fileio.*;
 import org.json.simple.JSONArray;
+import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -71,7 +79,36 @@ public final class Main {
         JSONArray arrayResult = new JSONArray();
 
         //TODO add here the entry point to your implementation
+        List<Movie> movies = new ArrayList<>();
+        for (MovieInputData elem : input.getMovies()) {
+            movies.add(new Movie(elem));
+        }
 
+        List<Serial> serials = new ArrayList<>();
+        for (SerialInputData elem : input.getSerials()) {
+            serials.add(new Serial(elem));
+        }
+
+        List<User> users = new ArrayList<>();
+        for (UserInputData elem : input.getUsers()) {
+            users.add(new User(elem));
+        }
+
+        for (ActionInputData action : input.getCommands()) {
+            if (action.getActionType().equals("command")) {
+                if (action.getType().equals("favorite")) {
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Commands.favorite(input, action)));
+                }
+                if (action.getType().equals("view")) {
+                    arrayResult.add(Commands.view(input, action));
+                }
+                if (action.getType().equals("rating")) {
+                    arrayResult.add(Commands.rating(movies, action, serials, users));
+                }
+            }
+
+        }
         fileWriter.closeJSON(arrayResult);
     }
 }
