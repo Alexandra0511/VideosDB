@@ -10,6 +10,7 @@ import common.Constants;
 import entertainment.Movie;
 import entertainment.Serial;
 import entertainment.User;
+
 import fileio.*;
 import org.json.simple.JSONArray;
 import utils.Utils;
@@ -101,65 +102,79 @@ public final class Main {
                             Commands.favorite(input, action)));
                 }
                 if (action.getType().equals("view")) {
-                    arrayResult.add(Commands.view(input, action));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Commands.view(input, action)));
                 }
                 if (action.getType().equals("rating")) {
-                    arrayResult.add(Commands.rating(movies, action, serials, users));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Commands.rating(movies, action, serials, users)));
                 }
             }
             if (action.getActionType().equals("query")) {
                 if (action.getObjectType().equals("actors")) {
                     if (action.getCriteria().equals("average")) {
-                        arrayResult.add(Query.average(action.getNumber(),
-                                action, movies, serials, input));
+                        arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                                Query.average(action.getNumber(), action, movies, serials, input)));
                     }
                     if (action.getCriteria().equals("awards")) {
                         List<ActorsAwards> awards = Utils.awardsList(action.getFilters().get(3));
-                        arrayResult.add(Query.awards(action, input, awards));
+                        arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                                Query.awards(action, input, awards)));
                     }
                     if (action.getCriteria().equals("filter_description")) {
                         List<String> words = action.getFilters().get(2);
-                        arrayResult.add(Query.filterDescription(action, input, words));
+                        arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                                Query.filterDescription(action, input, words)));
                     }
                 }
-                if (action.getObjectType().equals("movies") ||
-                        action.getObjectType().equals("shows")) {
+                if (action.getObjectType().equals("movies")
+                        || action.getObjectType().equals("shows")) {
                     if (action.getCriteria().equals("ratings")) {
-                        arrayResult.add(Query.rating(action, movies, serials));
+                        arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                                Query.rating(action, movies, serials)));
                     }
                     if (action.getCriteria().equals("favorite")) {
-                        arrayResult.add(Query.favorite(input, action, movies, serials));
+                        arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                                Query.favorite(input, action, movies, serials)));
                     }
                     if (action.getCriteria().equals("longest")) {
-                        arrayResult.add(Query.longest(action, movies, serials));
+                        arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                                Query.longest(action, movies, serials)));
                     }
                     if (action.getCriteria().equals("most_viewed")) {
-                        arrayResult.add(Query.mostViewed(input, action, movies, serials));
+                        arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                                Query.mostViewed(input, action, movies, serials)));
                     }
                 }
                 if (action.getObjectType().equals("users")) {
-                    arrayResult.add(Query.numberOfRatings(action, users));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Query.numberOfRatings(action, users)));
                 }
             } else if (action.getActionType().equals("recommendation")) {
                 if (action.getType().equals("standard")) {
-                    arrayResult.add(Recommendation.standardRecommendation(input,
-                            action, movies, serials));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Recommendation.standardRecommendation(input, action,
+                                    movies, serials)));
                 }
                 if (action.getType().equals("best_unseen")) {
-                    arrayResult.add(Recommendation.bestUnseenRecommendation(input,
-                            action, movies, serials));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Recommendation.bestUnseenRecommendation(input,
+                            action, movies, serials)));
                 }
                 if (action.getType().equals("search")) {
-                    arrayResult.add(Recommendation.searchRecommendation(input,
-                            action, movies, serials));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Recommendation.searchRecommendation(input,
+                            action, movies, serials)));
                 }
                 if (action.getType().equals("favorite")) {
-                    arrayResult.add(Recommendation.favoriteRecommendation(input,
-                            action, movies, serials));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Recommendation.favoriteRecommendation(input,
+                            action, movies, serials)));
                 }
                 if (action.getType().equals("popular")) {
-                    arrayResult.add(Recommendation.popularRecommendation(input,
-                            action, movies, serials));
+                    arrayResult.add(fileWriter.writeFile(action.getActionId(), "",
+                            Recommendation.popularRecommendation(input,
+                            action, movies, serials)));
                 }
             }
 

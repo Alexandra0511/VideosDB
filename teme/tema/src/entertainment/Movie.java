@@ -20,21 +20,22 @@ public class Movie {
     private final Map<UserInputData, Double> ratings;
 
     /**
-     *
-     * @param user
-     * @param rate
-     * @throws Exception
+     * Functie pentru adaugarea unui rating dat de catre un utilizator
+     * @param user utilizatorul care da ratingul
+     * @param rating nota data
+     * @throws Exception in cazul in care utilizatorul a dat deja rating pentru film
      */
-    public void addRating(final UserInputData user, final Double rate) throws Exception {
+    public void addRating(final UserInputData user, final Double rating) throws Exception {
         if (ratings.containsKey(user)) {
             throw new Exception();
         }
-        ratings.put(user, rate);
+        ratings.put(user, rating);
     }
 
     /**
-     *
-     * @return
+     * Functie ce calculeaza ratingul mediu pentru un film
+     * Calculez media aritmetica a tuturor ratingurilor unui film
+     * @return ratingul total
      */
     public double getRating() {
         double sum = 0;

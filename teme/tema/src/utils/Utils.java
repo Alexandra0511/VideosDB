@@ -7,6 +7,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -122,5 +123,18 @@ public final class Utils {
         }
 
         return mapVideos;
+    }
+
+    /**
+     * Functie ce creaza o lista de tip ActorsAwards dintr-o lista de tip String
+     * @param awards lista de stringuri
+     * @return lista de premii
+     */
+    public static List<ActorsAwards> awardsList(final List<String> awards) {
+        List<ActorsAwards> awards1 = new ArrayList<>();
+        for (String award : awards) {
+            awards1.add(stringToAwards(award));
+        }
+        return awards1;
     }
 }

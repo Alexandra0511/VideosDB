@@ -14,10 +14,17 @@ public class User {
         this.numberOfRatings = 0;
     }
 
+    /**
+     * Getter
+     * @return numarul total de ratinguri date de utilizator
+     */
     public int getNumberOfRatings() {
         return numberOfRatings;
     }
 
+    /**
+     * Functie ce incrementeaza numarul de ratinguri date de user
+     */
     public void addRating() {
         this.numberOfRatings++;
     }

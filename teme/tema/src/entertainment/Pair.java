@@ -6,10 +6,18 @@ public class Pair<T1, T2> {
     private T1 t1;
     private T2 t2;
 
+    /**
+     * Setter pentru primul parametru
+     * @param t1
+     */
     public void setT1(final T1 t1) {
         this.t1 = t1;
     }
 
+    /**
+     * Setter pentru al doilea parametru
+     * @param t2
+     */
     public void setT2(final T2 t2) {
         this.t2 = t2;
     }
@@ -19,16 +27,29 @@ public class Pair<T1, T2> {
         this.t2 = t2;
     }
 
+    /**
+     * Getter pentru primul parametru
+     * @return t1
+     */
     public T1 getT1() {
         return t1;
     }
 
+    /**
+     * Getter pentru primul paramentru
+     * @return t2
+     */
     public T2 getT2() {
         return t2;
     }
 
+    /**
+     * Functie ce returneaza daca doua perechi sunt egale sau nu, generata automat
+     * @param o
+     * @return true sau false
+     */
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }

@@ -7,7 +7,6 @@ import entertainment.User;
 import fileio.ActionInputData;
 import fileio.Input;
 import fileio.UserInputData;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ public final class Commands {
      * filmelor favorite, cat si a serialelor (aceasta fiind de tip String).
      * @param input pentru preluarea listei de useri
      * @param action pentru preluarea id-ului actiunii, a username-ului si a titlului videoului
-     * @return fisierul JSON cu mesajele cerute
+     * @return mesajele cerute
      */
     public static String favorite(final Input input, final ActionInputData action) {
 
@@ -49,10 +48,8 @@ public final class Commands {
         for (String video : user.getFavoriteMovies()) {
             if (video.equals(action.getTitle())) {
                 return "error -> " + video + " is already in favourite list";
-
             }
         }
-
         if (!user.getHistory().containsKey(action.getTitle())) {
             return "error -> " + action.getTitle() + " is not seen";
         }
@@ -69,26 +66,20 @@ public final class Commands {
      * @param input pentru preluarea listei de useri
      * @param action pentru preluarea usernam-ului utilizatorului, id-ului actiunii si titlului
      *               videoclipului ce trebuie adaugat in lista
-     * @return fisierul JSON cu mesajele cerute
+     * @return mesajele cerute
      */
-    public static JSONObject view(final Input input, final ActionInputData action) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
+    public static String view(final Input input, final ActionInputData action) {
         UserInputData user = returnUser(input, action);
 
         if (user.getHistory().containsKey(action.getTitle())) {
             user.getHistory().replace(action.getTitle(),
                     user.getHistory().get(action.getTitle()),
                     user.getHistory().get(action.getTitle()) + 1);
-            file.put("message", "success -> " + action.getTitle()
-                    + " was viewed with total views of "
-                    + user.getHistory().get(action.getTitle()));
-            return file;
+            return "success -> " + action.getTitle() + " was viewed with total views of "
+                    + user.getHistory().get(action.getTitle());
         } else {
             user.getHistory().put(action.getTitle(), 1);
-            file.put("message", "success -> " + action.getTitle()
-                    + " was viewed with total views of 1");
-            return file;
+            return "success -> " + action.getTitle() + " was viewed with total views of 1";
         }
     }
 
@@ -106,12 +97,10 @@ public final class Commands {
      *               si notei date in actiunea de rating
      * @param serials lista de seriale din input
      * @param users lista de useri din input
-     * @return fisierul JSON cu datele cerute
+     * @return mesajele cerute
      */
-    public static JSONObject rating(final List<Movie> movies, final ActionInputData action,
+    public static String rating(final List<Movie> movies, final ActionInputData action,
                                     final List<Serial> serials, final List<User> users) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         User user = null;
         for (User elem : users) {
             if (elem.getUser().getUsername().equals(action.getUsername())) {
@@ -120,23 +109,18 @@ public final class Commands {
         }
 
         if (!user.getUser().getHistory().containsKey(action.getTitle())) {
-            file.put("message", "error -> " + action.getTitle() + " is not seen");
-            return file;
+            return "error -> " + action.getTitle() + " is not seen";
         } else {
             for (Movie movie : movies) {
                 if (movie.getMovie().getTitle().equals(action.getTitle())) {
                     try {
                         movie.addRating(user.getUser(), action.getGrade());
                     } catch (Exception e) {
-                        file.put("message", "error -> "
-                                + action.getTitle() + " has been already rated");
-                        return file;
+                        return "error -> " + action.getTitle() + " has been already rated";
                     }
-                    file.put("message", "success -> "
-                            + action.getTitle() + " was rated with " + action.getGrade()
-                            + " by " + user.getUser().getUsername());
                     user.addRating();
-                    return file;
+                    return "success -> " + action.getTitle() + " was rated with "
+                            + action.getGrade() + " by " + user.getUser().getUsername();
                 }
             }
             for (Serial serial : serials) {
@@ -145,15 +129,11 @@ public final class Commands {
                         serial.addRating(user.getUser(), action.getGrade(),
                                 serial.getSerial().getSeasons().get(action.getSeasonNumber() - 1));
                     } catch (Exception e) {
-                        file.put("message", "error -> "
-                                + action.getTitle() + " has been already rated");
-                        return file;
+                        return "error -> " + action.getTitle() + " has been already rated";
                     }
-                    file.put("message", "success -> "
-                            + action.getTitle() + " was rated with " + action.getGrade()
-                            + " by " + user.getUser().getUsername());
                     user.addRating();
-                    return file;
+                    return "success -> " + action.getTitle() + " was rated with "
+                            + action.getGrade() + " by " + user.getUser().getUsername();
                 }
             }
         }

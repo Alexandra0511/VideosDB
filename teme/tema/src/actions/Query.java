@@ -9,7 +9,6 @@ import fileio.ActionInputData;
 import fileio.ActorInputData;
 import fileio.Input;
 import fileio.UserInputData;
-import org.json.JSONObject;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,22 +143,29 @@ public final class Query {
     }
 
     /**
-     *
-     * @param n numar
+     * Functie ce returneaza primii N actori sortați după media ratingurilor filmelor și a
+     * serialelor în care au jucat
+     * M-am folosit de o mapa ce are drept campuri atat numele actorului, cat si o pereche
+     * alcatuita din numarul videoclipurilor in care joaca si suma ratingurilor acestora, pentru a
+     * putea calcula ulterior ratingul final. Intai am initializat map-ul cu toti actorii si
+     * valorile initiale din pereche 0.
+     * Parcurgand distributiile atat ale filmelor, cat si ale serialelor, am adaugat fiecare rate
+     * pentru fiecrae actor si am incrementat numarul de filme in care joaca. Apoi, pentru
+     * fiecare actor, am calculat media ratingului si am sortat mapa in functie de aceste medii.
+     * La sfarsit, am returnat lista cu primii n actori.
+     * @param n numarul de actori ce trebuie afisati
      * @param action actiune
-     * @param movies filme
-     * @param serials seriale
+     * @param movies lista de filme din input
+     * @param serials lista de seriale din input
      * @param input pentru preluarea listei de actori
-     * @return json
+     * @return lista ceruta
      */
-    public static JSONObject average(final int n, final ActionInputData action,
+    public static String average(final int n, final ActionInputData action,
                                      final List<Movie> movies, final List<Serial> serials,
                                      final Input input) {
         final StringBuilder list = new StringBuilder();
         double rate, newrate;
 
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         Map<String, Pair<Integer, Double>> actorsRate = new HashMap<>();
         for (ActorInputData actor : input.getActors()) {
             actorsRate.put(actor.getName(), new Pair<>(0,  0.0));
@@ -238,8 +244,7 @@ public final class Query {
             list.append(sortedList.get(sortedList.size() - 1).getKey());
         }
 
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 
     /**
@@ -248,15 +253,13 @@ public final class Query {
      * premiile din input. In caz afirmativ, adaug numele actorului in mapa actorAwards, impreuna
      * cu numarul total de premii al acestuia. Sortez map-ul dupa numarul de premii, respectiv
      * alfabetic pentru valori egale.
-     * @param action pentru id si ordinea sortarii
+     * @param action pentru ordinea sortarii
      * @param input pentru preluarea listei de actori
      * @param awards lista de premii din input
-     * @return JSON cu datele cerute
+     * @return lista ceruta
      */
-    public static JSONObject awards(final ActionInputData action, final Input input,
+    public static String awards(final ActionInputData action, final Input input,
                                     final List<ActorsAwards> awards) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         final StringBuilder list = new StringBuilder();
         Map<String, Integer> actorAwards = new HashMap<>();
         for (ActorInputData actor : input.getActors()) {
@@ -276,8 +279,7 @@ public final class Query {
             }
         }
         if (actorAwards.isEmpty()) {
-            file.put("message", "Query result: []");
-            return file;
+            return "Query result: []";
         }
         List<Map.Entry<String, Integer>> sortedList =
                 sort(actorAwards);
@@ -290,8 +292,7 @@ public final class Query {
         }
         list.append(sortedList.get(sortedList.size() - 1).getKey());
 
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 
     /**
@@ -299,16 +300,14 @@ public final class Query {
      * Delimitez descrierea fiecarui actor in cuvinte, pe care le introduc intr-un vector
      * de string-uri in care verific existenta tuturor cuvintelor din inputul actiunii.
      * Numele actorilor le adaug intr-o lista pe care o sortez alfabetic.
-     * @param action pentru id, tipul sortarii
+     * @param action pentru tipul sortarii
      * @param input pentru preluarea listei de actori
      * @param words cuvintele ce trebuie continute in descrierea actorului
-     * @return fisier JSON cu datele cerute
+     * @return lista cerute
      */
-    public static JSONObject filterDescription(final ActionInputData action,
+    public static String filterDescription(final ActionInputData action,
                                                 final Input input,
                                                 final List<String> words) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         final StringBuilder list = new StringBuilder();
         List<String> actorsWords = new ArrayList<>();
 
@@ -331,8 +330,7 @@ public final class Query {
         }
 
         if (actorsWords.isEmpty()) {
-            file.put("message", "Query result: []");
-            return file;
+            return "Query result: []";
         }
 
         Collections.sort(actorsWords);
@@ -345,8 +343,7 @@ public final class Query {
         }
         list.append(actorsWords.get(actorsWords.size() - 1));
 
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 
     /**
@@ -355,15 +352,13 @@ public final class Query {
      * In functie de tipul obiectului actiunii, adaug in mapa numele videoului si ratingul
      * acestuia doar pentru videoclipuri cu rating diferit de 0, mapa pe care o sortez ulterior
      * crescator dupa rating, respectiv alfabetic pentru ratinguri egale.
-     * @param action pentru id, filtre si tipul obiectului actiunii (filme sau seriale)
+     * @param action pentru filtre si tipul obiectului actiunii (filme sau seriale)
      * @param movies lista de filme fara filtre aplicate
      * @param serials lista de seriale fara filtre aplicate
-     * @return
+     * @return lista ceruta
      */
-    public static JSONObject rating(final ActionInputData action,
+    public static String rating(final ActionInputData action,
                                     final List<Movie> movies, final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         List<Movie> copyMovies = filterMovies(movies, action.getFilters());
         List<Serial> copySerials = filterSerial(serials, action.getFilters());
         final StringBuilder list = new StringBuilder();
@@ -386,8 +381,7 @@ public final class Query {
             }
         }
         if (ratings.isEmpty()) {
-            file.put("message", "Query result: []");
-            return file;
+            return "Query result: []";
         }
         List<Map.Entry<String, Double>> sortedList =
                 new LinkedList<>(ratings.entrySet());
@@ -406,7 +400,7 @@ public final class Query {
         if (!action.getSortType().equals("asc")) {
             Collections.reverse(sortedList);
         }
-        if(action.getNumber() > sortedList.size()) {
+        if (action.getNumber() > sortedList.size()) {
             for (int i = 0; i < sortedList.size() - 1; i++) {
                 list.append(sortedList.get(i).getKey());
                 list.append(", ");
@@ -419,8 +413,7 @@ public final class Query {
             }
             list.append(sortedList.get(action.getNumber() - 1).getKey());
         }
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 
     /**
@@ -431,16 +424,14 @@ public final class Query {
      * film sau al unui serial, il adaug in mapa daca nu exista, respectiv incrementez
      * valoarea sa daca deja exista cheia.
      * @param input pentru preluarea listei de utilizatori
-     * @param action pentru id, filtre si tipul obiectului actiunii
+     * @param action pentru filtre si tipul obiectului actiunii
      * @param movies lista de filme nefiltrata din input
      * @param serials lista de seriale nefiltrata din input
-     * @return fisierul JSON cu datele cerute
+     * @return lista ceruta
      */
-    public static JSONObject favorite(final Input input, final ActionInputData action,
+    public static String favorite(final Input input, final ActionInputData action,
                                       final List<Movie> movies,
                                       final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         List<Movie> copyMovies = filterMovies(movies, action.getFilters());
         List<Serial> copySerials = filterSerial(serials, action.getFilters());
         Map<String, Integer> favVideos = new HashMap<>();
@@ -472,8 +463,7 @@ public final class Query {
             }
         }
         if (favVideos.isEmpty()) {
-            file.put("message", "Query result: []");
-            return file;
+            return "Query result: []";
         }
         List<Map.Entry<String, Integer>> sortedList =
                 sort(favVideos);
@@ -482,8 +472,7 @@ public final class Query {
         }
         StringBuilder list = firstN(sortedList, action.getNumber());
 
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 
     /**
@@ -491,17 +480,14 @@ public final class Query {
      * Lucrand cu listele filtrate, in functie de tipul obiectului actiunii, adaug
      * filmul/serialul in mapa, alaturi de dimensiunea lui. Sortez mapa si returnez primele
      * n videoclipuri.
-     * @param action pentru id, tipul obiectului actiunii si filtre
+     * @param action pentru tipul obiectului actiunii si filtre
      * @param movies lista de filme nefiltrata din input
      * @param serials lista de seriale nefiltrata din input
-     * @return fisierul JSON cu datele cerute
+     * @return lista ceruta
      */
-    public static JSONObject longest(final ActionInputData action,
+    public static String longest(final ActionInputData action,
                                      final List<Movie> movies,
                                      final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
-
         List<Movie> copyMovies = filterMovies(movies, action.getFilters());
         List<Serial> copySerials = filterSerial(serials, action.getFilters());
         Map<String, Integer> longestVideos = new HashMap<>();
@@ -521,8 +507,7 @@ public final class Query {
         }
 
         if (longestVideos.isEmpty()) {
-            file.put("message", "Query result: []");
-            return file;
+            return "Query result: []";
         }
         List<Map.Entry<String, Integer>> sortedList =
                 sort(longestVideos);
@@ -531,8 +516,7 @@ public final class Query {
         }
         StringBuilder list = firstN(sortedList, action.getNumber());
 
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 
     /**
@@ -543,17 +527,15 @@ public final class Query {
      * corespunzatoare acestuia, adaugand numarul de vizualizari ale userului prezent la vechea
      * valoare. Sortez mapa si returnez primele n videoclipuri.
      * @param input pentru preluarea listei de utilizatori
-     * @param action pentru id, filtre si tipul oniectului actiunii
+     * @param action pentru filtre si tipul oniectului actiunii
      * @param movies lista nefiltrata de filme
      * @param serials lista nefiltrata de seriale
-     * @return fisierul JSON cu datele cerute
+     * @return lista ceruta
      */
-    public static JSONObject mostViewed(final Input input,
+    public static String mostViewed(final Input input,
                                         final ActionInputData action,
                                         final List<Movie> movies,
                                         final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         List<Movie> copyMovies = filterMovies(movies, action.getFilters());
         List<Serial> copySerials = filterSerial(serials, action.getFilters());
 
@@ -586,8 +568,7 @@ public final class Query {
             }
         }
         if (views.isEmpty()) {
-            file.put("message", "Query result: []");
-            return file;
+            return "Query result: []";
         }
         List<Map.Entry<String, Integer>> sortedList =
                 sort(views);
@@ -596,8 +577,7 @@ public final class Query {
         }
         StringBuilder list = firstN(sortedList, action.getNumber());
 
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 
     /**
@@ -606,15 +586,12 @@ public final class Query {
      * utilizator la fiecare apelare a functiei fara erori. Acum ma folosesc de acest camp din
      * clasa User. Astfel, parcurg toti userii, adaugand numele acestora in mapa impreuna cu
      * numarul de ratinguri date, mapa pe care ulterior o sortez si returnez primele n valori.
-     * @param action pentru preluarea id-ului si a numarului n
+     * @param action pentru preluarea numarului n
      * @param users lista de utilizatori din input
-     * @return fisierul JSON cu datele cerute
+     * @return lista ceruta
      */
-    public static JSONObject numberOfRatings(final ActionInputData action,
+    public static String numberOfRatings(final ActionInputData action,
                                              final List<User> users) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
-
         Map<String, Integer> ratings = new HashMap<>();
         for (User user : users) {
             if (user.getNumberOfRatings() != 0) {
@@ -628,7 +605,6 @@ public final class Query {
         }
         StringBuilder list = firstN(sortedList, action.getNumber());
 
-        file.put("message", "Query result: [" + list + "]");
-        return file;
+        return "Query result: [" + list + "]";
     }
 }

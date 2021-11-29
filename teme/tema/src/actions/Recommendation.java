@@ -7,10 +7,10 @@ import entertainment.Serial;
 import fileio.ActionInputData;
 import fileio.Input;
 import fileio.UserInputData;
-import org.json.JSONObject;
 import utils.Utils;
 
 import java.util.*;
+
 
 public final class Recommendation {
     private Recommendation() { };
@@ -31,7 +31,7 @@ public final class Recommendation {
     }
 
     /**
-     * Functie ce returneaza un serial cu nume dat ca parametru
+     * Functie ce returneaza serialul cu nume dat ca parametru
      * @param serial numele serialului cautat
      * @param serials lista de seriale in care se face cautarea
      * @return serialul cautat
@@ -50,17 +50,15 @@ public final class Recommendation {
      * Caut utilizatorul cu numele username-ul dat ca input in actiune, apoi parcurg
      * pe rand filmele si serialele. Cand gasesc un videoclip nevizualizat il returnez.
      * @param input pentru peluarea listei de useri
-     * @param action pentru preluarea id-ului si a username-ului utilizatorului
+     * @param action pentru preluarea username-ului utilizatorului
      * @param movies lista de filme din input
      * @param serials lista de seriale din input
-     * @return fisierul JSON cu datele cerute
+     * @return videoclipul cerut
      */
-    public static JSONObject standardRecommendation(final Input input,
+    public static String standardRecommendation(final Input input,
                                                     final ActionInputData action,
                                                     final List<Movie> movies,
                                                     final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         UserInputData user = null;
         for (UserInputData elem : input.getUsers()) {
             if (elem.getUsername().equals(action.getUsername())) {
@@ -68,42 +66,36 @@ public final class Recommendation {
             }
         }
         if (user == null) {
-            file.put("message", "StandardRecommendation cannot be applied!");
-            return file;
+            return "StandardRecommendation cannot be applied!";
         }
         for (Movie movie : movies) {
             if (!user.getHistory().containsKey(movie.getMovie().getTitle())) {
-                file.put("message", "StandardRecommendation result: "
-                        + movie.getMovie().getTitle());
-                return file;
+                return "StandardRecommendation result: " + movie.getMovie().getTitle();
             }
         }
         for (Serial serial : serials) {
             if (!user.getHistory().containsKey(serial.getSerial().getTitle())) {
-                file.put("message", "StandardRecommendation result: "
-                        + serial.getSerial().getTitle());
-                return file;
+                return "StandardRecommendation result: " + serial.getSerial().getTitle();
             }
         }
-        file.put("message", "StandardRecommendation cannot be applied!");
-        return file;
+        return "StandardRecommendation cannot be applied!";
     }
 
     /**
      * Functie ce returneaza cel mai bun video nevizualizat de catre utilizator
-     *
-     * @param input
-     * @param action
-     * @param movies
-     * @param serials
-     * @return
+     * Am adaugat fiecare film si serial intr-o lista de perechi, alaturi de ratingul
+     * fiecaruia. Nu am folosit map pentru a pastra ordinea din input. Apoi, parcurgand toata
+     * lista, am returnat videoclipul cu rate maxim.
+     * @param input pentru preluarea listei de useri
+     * @param action pentru username-ul utilizatorului
+     * @param movies lista de filme din input
+     * @param serials lista de seriale din input
+     * @return videoclipul cerut
      */
-    public static JSONObject bestUnseenRecommendation(final Input input,
+    public static String bestUnseenRecommendation(final Input input,
                                                       final ActionInputData action,
                                                       final List<Movie> movies,
                                                       final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         List<Pair<String, Double>> unseen = new ArrayList<>();
         UserInputData user = null;
         for (UserInputData elem : input.getUsers()) {
@@ -112,8 +104,7 @@ public final class Recommendation {
             }
         }
         if (user == null) {
-            file.put("message", "BestRatedUnseenRecommendation cannot be applied!");
-            return file;
+            return "BestRatedUnseenRecommendation cannot be applied!";
         }
         for (Movie movie : movies) {
             if (!user.getHistory().containsKey(movie.getMovie().getTitle())) {
@@ -127,11 +118,10 @@ public final class Recommendation {
         }
 
         if (unseen.isEmpty()) {
-            file.put("message", "BestRatedUnseenRecommendation cannot be applied!");
-            return file;
+            return "BestRatedUnseenRecommendation cannot be applied!";
         }
 
-        Double maxRate = Double.valueOf(-1);
+        Double maxRate = (double) -1;
         String rec = "";
         for (Pair<String, Double> iter : unseen) {
             if (iter.getT2() > maxRate) {
@@ -139,25 +129,26 @@ public final class Recommendation {
                 rec = iter.getT1();
             }
         }
-
-        file.put("message", "BestRatedUnseenRecommendation result: " + rec);
-        return file;
+        return "BestRatedUnseenRecommendation result: " + rec;
     }
 
     /**
-     *
-     * @param input
-     * @param action
-     * @param movies
-     * @param serials
-     * @return
+     * Functie ce returneaza primul videoclip nevizualizat din cel mai popular gen
+     * Parcurgand genurile videoclipurilor din istoricul fiecarui utilizator, am folosit o mapa
+     * pentru a memora numele genului si de cate ori a fost vizualizat. Apoi, am sortat mapa
+     * descrescator dupa numarul de vizualizari pentru a afla cel mai popular gen. Parcurgand
+     * genurile, am gasit primul videoclip nevizualizat de catre utilizator din acel gen si
+     * l-am returnat.
+     * @param input pentru preluarea listei de useri
+     * @param action pentru preluarea username-ului utilizatorului
+     * @param movies lista de filme din input
+     * @param serials lista de seriale din input
+     * @return videoclipul cerut
      */
-    public static JSONObject popularRecommendation(final Input input,
+    public static String popularRecommendation(final Input input,
                                                    final ActionInputData action,
                                                    final List<Movie> movies,
                                                    final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         Map<String, Integer> popular = new HashMap<>();
         UserInputData user = null;
         for (UserInputData elem : input.getUsers()) {
@@ -188,9 +179,8 @@ public final class Recommendation {
                 }
             }
         }
-        if(user.getSubscriptionType().equals("BASIC")) {
-            file.put("message", "PopularRecommendation cannot be applied!");
-            return file;
+        if (user.getSubscriptionType().equals("BASIC")) {
+            return "PopularRecommendation cannot be applied!";
         }
         List<Map.Entry<String, Integer>> sortedList =
                 new LinkedList<>(popular.entrySet());
@@ -206,40 +196,38 @@ public final class Recommendation {
             for (Movie movie : movies) {
                 if (!user.getHistory().containsKey(movie.getMovie().getTitle())) {
                     if (movie.getMovie().getGenres().contains(sortedList.get(i).getKey())) {
-                        file.put("message", "PopularRecommendation result: "
-                                + movie.getMovie().getTitle());
-                        return file;
+                        return "PopularRecommendation result: " + movie.getMovie().getTitle();
                     }
                 }
             }
             for (Serial serial : serials) {
                 if (!user.getHistory().containsKey(serial.getSerial().getTitle())) {
                     if (serial.getSerial().getGenres().contains(sortedList.get(i).getKey())) {
-                        file.put("message", "PopularRecommendation result: "
-                                + serial.getSerial().getTitle());
-                        return file;
+                        return "PopularRecommendation result: " + serial.getSerial().getTitle();
                     }
                 }
             }
         }
-        file.put("message", "PopularRecommendation cannot be applied!");
-        return file;
+        return "PopularRecommendation cannot be applied!";
     }
 
     /**
-     *
-     * @param input
-     * @param action
-     * @param movies
-     * @param serials
-     * @return
+     * Functie ce returneaza videoclipul care e cel mai des intalnit in lista de favorite
+     * nevizualizat de catre utilizatorul dat.
+     * Initializez mapa cu fiecare videoclip in ordinea aparitiei in baza de date si valoarea 0.
+     * Pentru fiecare user, parcurg lista de favorite si incrementez valoarea aparitiilor in
+     * listele de favorite pentru fiecare videoclip din aceasta. Returnez primul videoclip
+     * nevizualizat de catre user cu valoare maxima.
+     * @param input pentru preluarea listei de useri
+     * @param action pentru preluarea username-ului utilizatorului
+     * @param movies lista de filme din input
+     * @param serials lista de seriale din input
+     * @return videoclipul cerut
      */
-    public static JSONObject favoriteRecommendation(final Input input,
+    public static String favoriteRecommendation(final Input input,
                                                     final ActionInputData action,
                                                     final List<Movie> movies,
                                                     final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         Map<String, Integer> favs = new HashMap<>();
         for (Movie movie : movies) {
             favs.put(movie.getMovie().getTitle(), 0);
@@ -247,7 +235,6 @@ public final class Recommendation {
         for (Serial serial : serials) {
             favs.put(serial.getSerial().getTitle(), 0);
         }
-        final StringBuilder list = new StringBuilder();
         UserInputData user = null;
         for (UserInputData elem : input.getUsers()) {
             if (elem.getUsername().equals(action.getUsername())) {
@@ -269,27 +256,27 @@ public final class Recommendation {
             }
         }
         if (max == 0) {
-            file.put("message", "FavoriteRecommendation cannot be applied!");
-            return file;
+            return "FavoriteRecommendation cannot be applied!";
         }
-        file.put("message", "FavoriteRecommendation result: " + best);
-        return file;
+        return "FavoriteRecommendation result: " + best;
     }
 
     /**
-     *
-     * @param input
-     * @param action
-     * @param movies
-     * @param serials
-     * @return
+     * Functie ce returneaza toate videoclipurile nevăzute de user dintr-un anumit gen, dat ca
+     * filtru în input.
+     * Pentru fiecare videoclip nevazut de catre utilizator, am testat daca cuprinde genul
+     * dat in input, caz in care l-am adaugat in mapa, alaturi de ratingul sau.
+     * Apoi am sortat mapa si am returnat lista cu toate videoclipurile.
+     * @param input pentru preluarea listei de useri
+     * @param action pentru preluarea username-ului utilizatorului si a genului
+     * @param movies lista de filme din input
+     * @param serials lista de seriale din input
+     * @return videoclipul cerut
      */
-    public static JSONObject searchRecommendation(final Input input,
+    public static String searchRecommendation(final Input input,
                                                   final ActionInputData action,
                                                   final List<Movie> movies,
                                                   final List<Serial> serials) {
-        JSONObject file = new JSONObject();
-        file.put("id", action.getActionId());
         Map<String, Double> searchResult = new HashMap<>();
         final StringBuilder list = new StringBuilder();
         UserInputData user = null;
@@ -299,32 +286,17 @@ public final class Recommendation {
             }
         }
 
-//        String str = action.getGenre();
-//        String[] arrOfStr = str.split(" & ");
-//        boolean validGenre = false;
-//        for (String a : arrOfStr) {
-//            validGenre = false;
-//            for (Genre g : Genre.values()) {
-//                if (g.name().equals(a.toUpperCase())) {
-//                    validGenre = true;
-//                    break;
-//                }
-//            }
-//        }
-
         if (user == null || user.getSubscriptionType().equals("BASIC")) {
-            file.put("message", "SearchRecommendation cannot be applied!");
-            return file;
+            return "SearchRecommendation cannot be applied!";
         }
 
         Genre genre = Utils.stringToGenre(action.getGenre());
-        if(genre == null) {
-            file.put("message", "SearchRecommendation cannot be applied!");
-            return file;
+        if (genre == null) {
+            return "SearchRecommendation cannot be applied!";
         }
         for (Movie movie : movies) {
             if (!user.getHistory().containsKey(movie.getMovie().getTitle())) {
-                for(String genreString : movie.getMovie().getGenres()) {
+                for (String genreString : movie.getMovie().getGenres()) {
                     if (Utils.stringToGenre(genreString).equals(genre)) {
                         searchResult.put(movie.getMovie().getTitle(), movie.getRating());
                         break;
@@ -332,10 +304,9 @@ public final class Recommendation {
                 }
             }
         }
-
         for (Serial serial : serials) {
             if (!user.getHistory().containsKey(serial.getSerial().getTitle())) {
-                for(String genreString : serial.getSerial().getGenres()) {
+                for (String genreString : serial.getSerial().getGenres()) {
                     if (Utils.stringToGenre(genreString).equals(genre)) {
                         searchResult.put(serial.getSerial().getTitle(), serial.getRating());
                         break;
@@ -344,8 +315,7 @@ public final class Recommendation {
             }
         }
         if (searchResult.isEmpty()) {
-            file.put("message", "SearchRecommendation cannot be applied!");
-            return file;
+            return "SearchRecommendation cannot be applied!";
         }
         List<Map.Entry<String, Double>> sortedList =
                 new LinkedList<>(searchResult.entrySet());
@@ -367,8 +337,6 @@ public final class Recommendation {
             list.append(", ");
         }
         list.append(sortedList.get(sortedList.size() - 1).getKey());
-        file.put("message", "SearchRecommendation result: [" + list + "]");
-        return file;
-
+        return "SearchRecommendation result: [" + list + "]";
     }
 }
